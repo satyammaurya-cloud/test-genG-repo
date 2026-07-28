@@ -7,6 +7,10 @@ rg = {
     name     = "adnan-rg"
     location = "centralindia"
   }
+  rg3 = {
+    name     = "tcs-rg"
+    location = "centralindia"
+  }
 }
 
 vnet = {
