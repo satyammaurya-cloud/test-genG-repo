@@ -1,0 +1,78 @@
+name: Terraform CI Pipeline
+
+on:
+  pull_request:
+
+jobs:
+  terraform:
+    runs-on: ubuntu-latest
+
+
+
+    steps:
+       # Code clone of repo
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        
+       # Az cli install 
+      - name: Install Azure CLI
+        uses: azure/CLI@v2
+        with:
+          inlineScript: |
+            az version
+            
+        # Azure login
+      - name: Azure Login
+        uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+       # Az login cred's verify
+      - name: Verify Azure Login
+        run: |
+          az account show
+          az account list  
+          
+       # Terraform Install into runner
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+
+      - name: Terraform Init
+        run: terraform init
+
+      - name: Terraform Format Check
+        run: terraform fmt -check -recursive
+
+      - name: Terraform Validate
+        run: terraform validate
+
+      - name: Setup TFLint
+        uses: terraform-linters/setup-tflint@v4
+
+      - name: Initialize TFLint
+        run: tflint --init
+
+      - name: Run TFLint
+        run: tflint
+
+      - name: Run TFsec
+        uses: aquasecurity/tfsec-action@v1.0.3
+        with:
+          working_directory: .
+
+      - name: Setup Infracost
+        uses: infracost/actions/setup@v3
+        
+      # We need to add API key from the Infracost portal
+      - name: Run Infracost
+        env:
+          INFRACOST_API_KEY: ${{ secrets.INFRACOST_API_KEY }}
+        run: |
+          infracost breakdown --path .
+
+      - name: Terraform Plan
+        run: terraform plan
+    
+
