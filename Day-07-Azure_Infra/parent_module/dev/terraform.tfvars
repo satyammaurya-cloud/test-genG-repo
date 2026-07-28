@@ -3,6 +3,10 @@ rg = {
     name     = "satyam-rg"
     location = "centralindia"
   }
+  rg2 = {
+    name     = "adnan-rg"
+    location = "centralindia"
+  }
 }
 
 vnet = {
