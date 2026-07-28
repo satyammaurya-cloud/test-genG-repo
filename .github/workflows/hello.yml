@@ -7,21 +7,19 @@ jobs:
   terraform:
     runs-on: ubuntu-latest
 
-
-
     steps:
-       # Code clone of repo
+      # Checkout source code
       - name: Checkout Repository
         uses: actions/checkout@v4
-        
-       # Az cli install 
+
+      # Install Azure CLI
       - name: Install Azure CLI
         uses: azure/CLI@v2
         with:
           inlineScript: |
             az version
-            
-        # Azure login
+
+      # Login to Azure using OIDC
       - name: Azure Login
         uses: azure/login@v2
         with:
@@ -29,50 +27,57 @@ jobs:
           tenant-id: ${{ secrets.AZURE_TENANT_ID }}
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
-       # Az login cred's verify
+      # Verify Azure authentication
       - name: Verify Azure Login
         run: |
           az account show
-          az account list  
-          
-       # Terraform Install into runner
+          az account list
+
+      # Install Terraform
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
 
-      - name: Terraform Init
-        run: terraform init
-
+      # Check Terraform formatting
       - name: Terraform Format Check
         run: terraform fmt -check -recursive
 
+      # Initialize Terraform
+      - name: Terraform Init
+        run: terraform init
+
+      # Validate Terraform configuration
       - name: Terraform Validate
         run: terraform validate
 
+      # Install TFLint
       - name: Setup TFLint
         uses: terraform-linters/setup-tflint@v4
 
+      # Download TFLint plugins
       - name: Initialize TFLint
         run: tflint --init
 
+      # Lint Terraform code
       - name: Run TFLint
         run: tflint
 
+      # Scan Terraform for security issues
       - name: Run TFsec
         uses: aquasecurity/tfsec-action@v1.0.3
         with:
           working_directory: .
 
+      # Install Infracost
       - name: Setup Infracost
         uses: infracost/actions/setup@v3
-        
-      # We need to add API key from the Infracost portal
+
+      # Estimate infrastructure cost
       - name: Run Infracost
         env:
           INFRACOST_API_KEY: ${{ secrets.INFRACOST_API_KEY }}
         run: |
           infracost breakdown --path .
 
+      # Generate Terraform execution plan
       - name: Terraform Plan
         run: terraform plan
-    
-
