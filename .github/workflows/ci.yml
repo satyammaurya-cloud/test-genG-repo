@@ -5,6 +5,9 @@ name: CI for Terraform
 on:
   workflow_dispatch:
 
+permissions:
+  contents: write
+
 # Jobs - We can define multiple jobs here
 
 jobs:
