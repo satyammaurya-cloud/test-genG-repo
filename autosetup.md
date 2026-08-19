@@ -18,6 +18,10 @@ sudo apt update && sudo apt install terraform
 # 3. To download the aws-cli
 
 curl -fsSL https://awscli.amazonaws.com/v2/install.sh | bash
+
+# 3. To download the kubectl-cli
+
+
 ```
 ### Additional login command with placeholders for credentials:
 ```bash
